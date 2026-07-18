@@ -1,0 +1,50 @@
+{
+  "family": "s3-video-upload-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::REPLACE_WITH_ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::REPLACE_WITH_ACCOUNT_ID:role/s3-video-upload-api-task-role",
+  "containerDefinitions": [
+    {
+      "name": "api",
+      "image": "REPLACE_WITH_ACCOUNT_ID.dkr.ecr.ap-northeast-1.amazonaws.com/s3-video-upload-api:REPLACE_WITH_TAG",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "ASPNETCORE_ENVIRONMENT",
+          "value": "Production"
+        },
+        {
+          "name": "S3__BucketName",
+          "value": "REPLACE_WITH_BUCKET_NAME"
+        },
+        {
+          "name": "S3__Region",
+          "value": "ap-northeast-1"
+        },
+        {
+          "name": "S3__KeyPrefix",
+          "value": "videos"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/s3-video-upload-api",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

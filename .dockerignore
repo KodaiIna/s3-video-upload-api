@@ -1,0 +1,10 @@
+.git
+.gitignore
+**/bin
+**/obj
+**/TestResults
+tests
+docs
+localstack
+scripts
+README.md

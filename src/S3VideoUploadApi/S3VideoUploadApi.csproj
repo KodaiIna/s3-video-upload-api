@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>S3VideoUploadApi-LocalAws-9f2d65e4-20fb-4f23-bb78-8baad694f19b</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="4.0.18.7" />
+    <PackageReference Include="AWSSDK.SSO" Version="4.0.2.7" />
+    <PackageReference Include="AWSSDK.SSOOIDC" Version="4.0.3.8" />
+  </ItemGroup>
+
+</Project>

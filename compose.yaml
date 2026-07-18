@@ -1,0 +1,23 @@
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: s3-video-upload-localstack
+    ports:
+      - "127.0.0.1:4566:4566"
+    environment:
+      SERVICES: s3
+      AWS_DEFAULT_REGION: ap-northeast-1
+      DEBUG: "${LOCALSTACK_DEBUG:-0}"
+      PERSISTENCE: "1"
+    volumes:
+      - localstack-data:/var/lib/localstack
+      - ./localstack/init/10-create-bucket.sh:/etc/localstack/init/ready.d/10-create-bucket.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:4566/_localstack/health >/dev/null || exit 1"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+      start_period: 5s
+
+volumes:
+  localstack-data:

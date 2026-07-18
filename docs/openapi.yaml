@@ -1,0 +1,218 @@
+openapi: 3.1.0
+info:
+  title: S3 Video Upload API
+  version: 1.0.0
+  description: >-
+    Receives small videos as multipart/form-data or Base64 JSON and stores them
+    in Amazon S3 through the API server.
+servers:
+  - url: http://localhost:5080
+    description: Local development
+tags:
+  - name: Videos
+    description: Video upload operations
+  - name: Health
+    description: Process health
+paths:
+  /api/videos/multipart:
+    post:
+      operationId: uploadVideoMultipart
+      summary: Upload a video using multipart/form-data
+      tags: [Videos]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: >-
+                    Video file. The part filename and an allowed video
+                    Content-Type are required. Default maximum size is 25 MiB.
+      responses:
+        '200':
+          description: Video stored successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoUploadResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '413':
+          $ref: '#/components/responses/ContentTooLarge'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/S3Failure'
+  /api/videos/base64:
+    post:
+      operationId: uploadVideoBase64
+      summary: Upload a video using Base64 JSON
+      description: >-
+        base64Data may be raw Base64 or a data URI. contentType may be omitted
+        only when the data URI contains a media type. If both are present they
+        must match.
+      tags: [Videos]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Base64VideoUploadRequest'
+            examples:
+              rawBase64:
+                summary: Raw Base64
+                value:
+                  fileName: sample.mp4
+                  contentType: video/mp4
+                  base64Data: AAAAHGZ0eXBtcDQyAAAAAG1wNDJpc29t...
+              dataUri:
+                summary: Data URI with inferred Content-Type
+                value:
+                  fileName: sample.mp4
+                  base64Data: data:video/mp4;base64,AAAAHGZ0eXBtcDQy...
+      responses:
+        '200':
+          description: Video stored successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoUploadResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '413':
+          $ref: '#/components/responses/ContentTooLarge'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/S3Failure'
+  /health:
+    get:
+      operationId: getHealth
+      summary: Check whether the API process is responding
+      tags: [Health]
+      responses:
+        '200':
+          description: API process is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+components:
+  schemas:
+    Base64VideoUploadRequest:
+      type: object
+      required: [fileName, base64Data]
+      properties:
+        fileName:
+          type: string
+          minLength: 1
+          description: Original file name. Client-side path segments are discarded.
+          examples: [sample.mp4]
+        contentType:
+          type: [string, 'null']
+          description: >-
+            Allowed video Content-Type. Conditionally required when base64Data
+            is not a data URI containing a media type.
+          examples: [video/mp4]
+        base64Data:
+          type: string
+          minLength: 1
+          description: Raw Base64 or data URI containing the video bytes.
+    VideoUploadResponse:
+      type: object
+      required: [bucket, key, eTag, size, contentType]
+      properties:
+        bucket:
+          type: string
+          examples: [example-video-bucket]
+        key:
+          type: string
+          examples: [videos/2026/07/18/0123456789abcdef0123456789abcdef.mp4]
+        eTag:
+          type: string
+          description: S3 ETag without surrounding double quotes.
+        size:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Decoded byte size stored in S3.
+          examples: [123456]
+        contentType:
+          type: string
+          examples: [video/mp4]
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          const: ok
+    ValidationProblemDetails:
+      type: object
+      required: [status, errors]
+      properties:
+        type:
+          type: [string, 'null']
+          format: uri
+        title:
+          type: [string, 'null']
+        status:
+          type: integer
+          const: 400
+        detail:
+          type: [string, 'null']
+        instance:
+          type: [string, 'null']
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: [string, 'null']
+          format: uri
+        title:
+          type: [string, 'null']
+        status:
+          type: [integer, 'null']
+        detail:
+          type: [string, 'null']
+        instance:
+          type: [string, 'null']
+  responses:
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ValidationProblemDetails'
+    ContentTooLarge:
+      description: Request body exceeded the configured server limit
+    InternalServerError:
+      description: Unexpected server failure
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    S3Failure:
+      description: The S3 PutObject operation failed
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ProblemDetails'
+              - type: object
+                properties:
+                  status:
+                    const: 502
+                  title:
+                    const: S3 upload failed

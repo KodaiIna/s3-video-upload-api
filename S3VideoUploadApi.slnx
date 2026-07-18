@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/S3VideoUploadApi/S3VideoUploadApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/S3VideoUploadApi.Tests/S3VideoUploadApi.Tests.csproj" />
+  </Folder>
+</Solution>

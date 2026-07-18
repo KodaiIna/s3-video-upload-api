@@ -1,0 +1,28 @@
+@host = http://localhost:5080
+
+GET {{host}}/health
+Accept: application/json
+
+###
+
+# Replace the path with a real local video file.
+POST {{host}}/api/videos/multipart
+Content-Type: multipart/form-data; boundary=VideoBoundary
+
+--VideoBoundary
+Content-Disposition: form-data; name="file"; filename="sample.mp4"
+Content-Type: video/mp4
+
+< ./sample.mp4
+--VideoBoundary--
+
+###
+
+POST {{host}}/api/videos/base64
+Content-Type: application/json
+
+{
+  "fileName": "sample.mp4",
+  "contentType": "video/mp4",
+  "base64Data": "AAAA"
+}
