@@ -17,7 +17,7 @@ public static class VideoEndpoints
             .Accepts<IFormFile>("multipart/form-data")
             .Produces<VideoUploadResponse>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
+            .Produces(StatusCodes.Status413PayloadTooLarge)
             .ProducesProblem(StatusCodes.Status502BadGateway);
 
         group.MapPost("/base64", VideoUploadHandlers.UploadBase64Async)
@@ -27,7 +27,7 @@ public static class VideoEndpoints
             .Accepts<Base64VideoUploadRequest>("application/json")
             .Produces<VideoUploadResponse>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
+            .Produces(StatusCodes.Status413PayloadTooLarge)
             .ProducesProblem(StatusCodes.Status502BadGateway);
 
         return endpoints;
