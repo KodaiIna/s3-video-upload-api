@@ -9,6 +9,8 @@
 | `POST` | `/api/videos/multipart` | `multipart/form-data` の `file` フィールド |
 | `POST` | `/api/videos/base64` | JSONの `fileName`, `contentType`, `base64Data` |
 | `GET` | `/health` | APIプロセスのヘルスチェック |
+| `GET` | `/openapi/v1.json` | コードから自動生成されるOpenAPI 3.1（ローカル環境のみ） |
+| `GET` | `/swagger` | Swagger UI（ローカル環境のみ） |
 
 ## ローカルデバッグ（LocalStack）
 
@@ -19,7 +21,7 @@ docker compose up -d localstack
 dotnet run --launch-profile LocalStack --project .\src\S3VideoUploadApi
 ```
 
-APIは `http://localhost:5080`、LocalStackは `http://localhost:4566` で起動します。Visual Studio/Riderでは `LocalStack` プロファイルを選択してデバッグしてください。
+APIは `http://localhost:5080`、LocalStackは `http://localhost:4566` で起動します。Swagger UIは `http://localhost:5080/swagger`、OpenAPI JSONは `http://localhost:5080/openapi/v1.json` です。Visual Studio/Riderでは `LocalStack` プロファイルを選択してデバッグしてください。
 
 ローカル設定は [appsettings.Development.json](src/S3VideoUploadApi/appsettings.Development.json) にあり、次が自動適用されます。
 
@@ -174,7 +176,7 @@ dotnet test --no-build
 
 - [API仕様書](docs/API-SPECIFICATION.md)
 - [インターフェース（IF）仕様書](docs/INTERFACE-SPECIFICATION.md)
-- [OpenAPI 3.1定義](docs/openapi.yaml)
+- OpenAPI 3.1定義: API起動中の `/openapi/v1.json` からコードを基に自動生成
 - [ローカル開発・ECSデプロイガイド](docs/LOCAL-DEVELOPMENT-AND-ECS.md)
 
 バケットは非公開のまま運用してください。本番公開前にAPI認証・認可、レート制限、必要に応じて実ファイル形式検査やマルウェアスキャンを追加してください。

@@ -44,6 +44,11 @@ Invoke-RestMethod http://localhost:5080/health
 Invoke-RestMethod http://localhost:4566/_localstack/health
 ```
 
+開発用APIドキュメント:
+
+- Swagger UI: `http://localhost:5080/swagger`
+- OpenAPI JSON: `http://localhost:5080/openapi/v1.json`
+
 ### 2.3 Visual Studio / Rider
 
 1. `compose.yaml` のLocalStackを起動する。

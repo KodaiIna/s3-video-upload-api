@@ -5,6 +5,11 @@ Accept: application/json
 
 ###
 
+GET {{host}}/openapi/v1.json
+Accept: application/json
+
+###
+
 # Replace the path with a real local video file.
 POST {{host}}/api/videos/multipart
 Content-Type: multipart/form-data; boundary=VideoBoundary
